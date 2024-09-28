@@ -1,46 +1,48 @@
-// Import Dotenv
-import dotenv from "dotenv";
-dotenv.config();
+require("dotenv").config();
 
-// Import Express
+// Import Express and Middleware
 import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 
-// Import CORS
-const cors = require("cors");
+// Import Supabase Instance
+import supabase from "../supabaseInstance";
 
-// Import Axios
-const axios = require("axios");
+// Import Route Handlers
+import { getAllPosts, addPost } from "./routes/post";
+import { getPostComments, addComment } from "./routes/comment";
+import { addPostLike, addCommentLike } from "./routes/postLike";
 
-// Import our Supabase Instance
-const supabase = require("../supabase");
-
-// create an express application
+// Create an Express application
 const app = express();
 
-// define a port
-const PORT = process.env.PORT;
+// Define the port from environment or default to 3000
+const PORT = process.env.PORT || 3000;
 
-// Define our Middleware
-// Use CORS Middleware
+// Define CORS Options
 const corsOptions = {
-  origin: process.env.CHISME_SERVER || "*",
+  origin: process.env.API_SERVER || "*",
   methods: ["GET", "POST", "DELETE", "PUT"],
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200,
 };
 
+// Middleware to handle CORS and JSON parsing
 app.use(cors(corsOptions));
-
-// Use JSON middleware to parse request bodies
 app.use(express.json());
 
-// Define our Routes
 // Home Route
-app.get("/", (request: Request, response: Response, next: NextFunction) => {
-  response.json({ message: "welcome to our server" });
+app.get("/", (request: Request, response: Response) => {
+  response.json({ message: "Welcome to the API" });
 });
 
-// Error Handling
-// Generic Error Handling
+// Define Routes without asyncHandler
+app.get("/posts", getAllPosts);
+app.post("/posts", addPost);
+app.get("/posts/:postId/comments", getPostComments);
+app.post("/posts/:postId/comments", addComment);
+app.post("/posts/:postId/likes", addPostLike);
+app.post("/comments/:commentId/likes", addCommentLike);
+
+// Error Handling Middleware
 app.use(
   (error: Error, request: Request, response: Response, next: NextFunction) => {
     console.error(error.stack);
@@ -52,18 +54,18 @@ app.use(
   }
 );
 
-// 404 Resource not found Error Handling
-app.use((request: Request, response: Response, next: NextFunction) => {
-  response.status(404).json({
+// 404 Resource Not Found Handler
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
     error:
       "Resource not found. Are you sure you're looking in the right place?",
   });
 });
 
-// make the server listen on our port
+// Start the Server
 const server = app.listen(PORT, () => {
   console.log(`The server is running on http://localhost:${PORT}`);
 });
 
-// export our app for testing
-module.exports = app;
+// Export the app for testing
+export default app;
