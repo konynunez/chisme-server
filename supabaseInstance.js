@@ -1,3 +1,4 @@
+"checkJS";
 // Import Dotenv
 require("dotenv").config();
 const axios = require("axios");

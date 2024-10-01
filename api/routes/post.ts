@@ -8,10 +8,13 @@ const getAllPosts = async (
   next: NextFunction
 ) => {
   try {
-    const { data } = await supabase.get("/post");
+    const { data, error } = await supabase.get("/post");
+    if (error) {
+      response.status(500).json({ error });
+    }
     response.json(data);
   } catch (error) {
-    response.status(500).json({ error: (error as Error).message });
+    next(error);
   }
 };
 
@@ -24,13 +27,18 @@ const addPost = async (
   const { content } = request.body;
 
   try {
-    const { data } = await supabase.post("/post", {
+    const { data, error } = supabase.post("post", {
       content,
       timestamp: new Date().toISOString(),
     });
+
+    if (error) {
+      response.status(500).json({ error });
+    }
+
     response.status(201).json(data);
   } catch (error) {
-    response.status(500).json({ error: (error as Error).message });
+    next(error);
   }
 };
 

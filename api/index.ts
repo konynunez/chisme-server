@@ -2,25 +2,32 @@ require("dotenv").config();
 
 // Import Express and Middleware
 import express, { Request, Response, NextFunction } from "express";
-import cors from "cors";
+import dotenv from "dotenv";
 
 // Import Supabase Instance
 import supabase from "../supabaseInstance";
 
+//import CORS
+import cors from "cors";
+
+//Import Axios
+const axios = require("axios");
+
 // Import Route Handlers
 import { getAllPosts, addPost } from "./routes/post";
-import { getPostComments, addComment } from "./routes/comment";
-import { addPostLike, addCommentLike } from "./routes/postLike";
+import { getCommentsById } from "./routes/comment";
+import { addPostLike } from "./routes/postLike";
 
 // Create an Express application
 const app = express();
 
 // Define the port from environment or default to 3000
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
+//define our Middleware
 // Define CORS Options
 const corsOptions = {
-  origin: process.env.API_SERVER || "*",
+  origin: process.env.CHISME_SERVER || "*",
   methods: ["GET", "POST", "DELETE", "PUT"],
   optionsSuccessStatus: 200,
 };
@@ -30,17 +37,21 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Home Route
-app.get("/", (request: Request, response: Response) => {
-  response.json({ message: "Welcome to the API" });
+app.get("/", (request: Request, response: Response, next: NextFunction) => {
+  response.json({ message: "Welcome our server" });
 });
 
-// Define Routes without asyncHandler
+// get all posts
 app.get("/posts", getAllPosts);
+
+// Add a new post
 app.post("/posts", addPost);
-app.get("/posts/:postId/comments", getPostComments);
-app.post("/posts/:postId/comments", addComment);
-app.post("/posts/:postId/likes", addPostLike);
-app.post("/comments/:commentId/likes", addCommentLike);
+
+// Get all comments for a post id
+app.get("/posts/:id/comments", getCommentsById);
+
+//add likes for a comment
+app.post("/posts/:id/likes", addPostLike);
 
 // Error Handling Middleware
 app.use(
@@ -68,4 +79,4 @@ const server = app.listen(PORT, () => {
 });
 
 // Export the app for testing
-export default app;
+module.exports = app;
