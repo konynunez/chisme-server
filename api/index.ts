@@ -27,8 +27,7 @@ const PORT = process.env.PORT;
 //define our Middleware
 // Define CORS Options
 const corsOptions = {
-  origin: process.env.CHISME_SERVER || "*",
-  methods: ["GET", "POST", "DELETE", "PUT"],
+  origin: process.env.CLIENT_URL,
   optionsSuccessStatus: 200,
 };
 
@@ -38,7 +37,7 @@ app.use(express.json());
 
 // Home Route
 app.get("/", (request: Request, response: Response, next: NextFunction) => {
-  response.json({ message: "Welcome our server" });
+  response.json({ message: "Welcome to our server" });
 });
 
 // get all posts
@@ -52,6 +51,35 @@ app.get("/posts/:id/comments", getCommentsById);
 
 //add likes for a comment
 app.post("/posts/:id/likes", addPostLike);
+
+// Fetch news articles based on a keyword
+app.get(
+  "/news/:keyword",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const keyword = req.params.keyword;
+    try {
+      const { data } = await axios.get(
+        `https://newsapi.org/v2/everything?q=${keyword}&apiKey=${process.env.NEWS_API_KEY}`
+      );
+      res.json(data.articles);
+    } catch (error) {
+      // Type guard for TypeScript
+      if (error instanceof Error) {
+        // If error is of type 'Error', safely access 'message'
+        console.error("Error fetching news:", error.message);
+        res
+          .status(500)
+          .json({ error: "Failed to fetch news", details: error.message });
+      } else {
+        // Handle cases where error is not an instance of Error
+        console.error("Unexpected error fetching news:", error);
+        res
+          .status(500)
+          .json({ error: "Failed to fetch news", details: "Unknown error" });
+      }
+    }
+  }
+);
 
 // Error Handling Middleware
 app.use(
