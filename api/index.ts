@@ -27,8 +27,10 @@ const PORT = process.env.PORT;
 //define our Middleware
 // Define CORS Options
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
-  optionsSuccessStatus: 200,
+  origin: process.env.CLIENT_URL || "https://chisme-client.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
 };
 
 // Middleware to handle CORS and JSON parsing
