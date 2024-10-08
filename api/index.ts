@@ -27,7 +27,7 @@ const PORT = process.env.PORT;
 //define our Middleware
 // Define CORS Options
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: "*",
   optionsSuccessStatus: 200,
 };
 
