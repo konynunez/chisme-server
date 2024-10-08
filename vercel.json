@@ -1,14 +1,1 @@
-{
-    "version": 2,
-    "rewrites": [
-      {
-        "source": "/posts(.*)",
-        "destination": "/api/posts"
-      },
-      {
-        "source": "/news(.*)",
-        "destination": "/api/news"
-      }
-    ]
-  }
-  
+{ "version": 2, "rewrites": [{ "source": "/(.*)", "destination": "/api" }] }
